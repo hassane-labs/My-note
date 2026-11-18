@@ -1,43 +1,54 @@
 /* ==========================================================================
    My Note - Service Worker (Cache-first pour assets, offline-first)
+   Compatible GitHub Pages (sous-répertoire) et racine
    ========================================================================== */
+
+// Détecte le base path automatiquement (ex: /My-note/ sur GitHub Pages)
+const BASE_PATH = (() => {
+  const scope = self.registration.scope;
+  const origin = self.location.origin;
+  // scope = "https://hassane-labs.github.io/My-note/"
+  // origin = "https://hassane-labs.github.io"
+  // basePath = "/My-note/"
+  return scope.slice(origin.length);
+})();
 
 const CACHE_NAME = 'my-note-v1';
 const ASSETS_CACHE = 'my-note-assets-v1';
 
-// Fichiers à mettre en cache au install
+// Fichiers à mettre en cache au install (chemins relatifs au BASE_PATH)
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './css/tokens.css',
-  './css/base.css',
-  './css/layout.css',
-  './css/components.css',
-  './css/themes.css',
-  './css/print.css',
-  './js/main.js',
-  './js/db.js',
-  './js/store.js',
-  './js/editor.js',
-  './js/tabs.js',
-  './js/search.js',
-  './js/findreplace.js',
-  './js/palette.js',
-  './js/markdown.js',
-  './js/revisions.js',
-  './js/export.js',
-  './js/settings.js',
-  './js/i18n.js',
-  './js/shortcuts.js',
-  './js/utils.js',
-  './vendor/marked.min.js',
-  './vendor/dompurify.min.js',
-  './assets/logo.svg',
-  './assets/favicon.svg',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png',
-  './assets/icons/icon-maskable-512.png'
+  BASE_PATH,
+  BASE_PATH + 'index.html',
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'css/tokens.css',
+  BASE_PATH + 'css/base.css',
+  BASE_PATH + 'css/layout.css',
+  BASE_PATH + 'css/components.css',
+  BASE_PATH + 'css/themes.css',
+  BASE_PATH + 'css/print.css',
+  BASE_PATH + 'js/main.js',
+  BASE_PATH + 'js/db.js',
+  BASE_PATH + 'js/store.js',
+  BASE_PATH + 'js/editor.js',
+  BASE_PATH + 'js/tabs.js',
+  BASE_PATH + 'js/search.js',
+  BASE_PATH + 'js/findreplace.js',
+  BASE_PATH + 'js/palette.js',
+  BASE_PATH + 'js/markdown.js',
+  BASE_PATH + 'js/revisions.js',
+  BASE_PATH + 'js/export.js',
+  BASE_PATH + 'js/settings.js',
+  BASE_PATH + 'js/i18n.js',
+  BASE_PATH + 'js/shortcuts.js',
+  BASE_PATH + 'js/utils.js',
+  BASE_PATH + 'vendor/marked.min.js',
+  BASE_PATH + 'vendor/dompurify.min.js',
+  BASE_PATH + 'assets/logo.svg',
+  BASE_PATH + 'assets/favicon.svg',
+  BASE_PATH + 'assets/icons/icon-192.png',
+  BASE_PATH + 'assets/icons/icon-512.png',
+  BASE_PATH + 'assets/icons/icon-maskable-512.png'
 ];
 
 // Installation : mise en cache des assets
@@ -45,10 +56,13 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(ASSETS_CACHE)
       .then((cache) => {
-        console.log('[SW] Caching assets');
+        console.log('[SW] Caching assets at', BASE_PATH);
         return cache.addAll(ASSETS);
       })
       .then(() => self.skipWaiting())
+      .catch((err) => {
+        console.error('[SW] Cache install failed:', err);
+      })
   );
 });
 
@@ -67,7 +81,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stratégie : Cache-first pour les assets, Network-first pour le reste (mais tout est statique)
+// Stratégie : Cache-first pour les assets, Network-first pour le reste
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -79,6 +93,11 @@ self.addEventListener('fetch', (event) => {
 
   // Ne pas intercepter les requêtes vers d'autres origines (sécurité)
   if (url.origin !== location.origin) {
+    return;
+  }
+
+  // Ne pas intercepter les requêtes en dehors de notre scope
+  if (!url.pathname.startsWith(BASE_PATH)) {
     return;
   }
 
@@ -102,11 +121,11 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           })
           .catch(() => {
-            // Offline : pour les pages HTML, retourner index.html (SPA)
+            // Offline : pour les pages HTML/navigation, retourner index.html (SPA)
             if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
-              return caches.match('./index.html');
+              return caches.match(BASE_PATH + 'index.html');
             }
-            // Pour les autres ressources, échouer
+            // Pour les autres ressources, échouer proprement
             return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
           });
       })
@@ -122,6 +141,5 @@ self.addEventListener('message', (event) => {
 
 // Notification de mise à jour disponible
 self.addEventListener('controllerchange', () => {
-  // Le SW a été mis à jour, on pourrait notifier l'utilisateur
   console.log('[SW] Controller changed');
 });

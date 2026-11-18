@@ -8,7 +8,7 @@ import { loadInitialState, saveSession, saveCurrentNote, refreshNotesList,
          setSearchQuery, setSidebarOpen, setSidebarCollapsed, toggleFocusMode,
          setCommandPaletteOpen, setEditorMode, updateSettings, setZoomLevel,
          showToast, openModal, closeModal, setOnline } from './store.js';
-import { getAllSettings, setSetting, requestPersistence } from './db.js';
+import { getAllSettings, setSetting, requestPersistence, checkIDBAvailable } from './db.js';
 import { applyTheme, initTheme } from './settings.js';
 import { renderEditor, updateEditorUI, setupEditor } from './editor.js';
 import { renderTabs, setupTabs } from './tabs.js';
@@ -29,6 +29,97 @@ let saveDebounceTimer = null;
 let autoSaveInterval = null;
 
 /* ==========================================================================
+   Affichage d'erreur critique (sans dépendre du store)
+   ========================================================================== */
+
+function showCriticalError(message, error) {
+  const app = document.getElementById('app');
+  if (!app) return;
+  
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
+                 (!document.documentElement.hasAttribute('data-theme') && 
+                  window.matchMedia('(prefers-color-scheme: dark)').matches);
+  
+  const bg = isDark ? '#0A0A0B' : '#FAF7F2';
+  const text = isDark ? '#ECE8E1' : '#1A1816';
+  const accent = '#E11D2E';
+  const muted = isDark ? '#8C8A94' : '#7A7670';
+  const surface = isDark ? '#131316' : '#FFFFFF';
+  const border = isDark ? '#26262C' : '#E0DCD3';
+  
+  app.innerHTML = `
+    <div style="
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: ${bg};
+      color: ${text};
+      font-family: system-ui, -apple-system, sans-serif;
+      text-align: center;
+      box-sizing: border-box;
+    ">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="${accent}" stroke-width="1.5" style="margin-bottom: 1.5rem;">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16.01"></line>
+      </svg>
+      <h1 style="margin: 0 0 1rem; font-size: 1.5rem; font-weight: 600;">Erreur de chargement</h1>
+      <p style="margin: 0 0 1.5rem; color: ${muted}; max-width: 400px;">${escapeHtml(message)}</p>
+      <details style="text-align: left; max-width: 500px; margin: 0 auto 1.5rem; padding: 1rem; background: ${surface}; border: 1px solid ${border}; border-radius: 8px; color: ${muted}; font-size: 0.85rem;">
+        <summary style="cursor: pointer; font-weight: 500; margin-bottom: 0.5rem;">Détails techniques</summary>
+        <pre style="margin: 0; white-space: pre-wrap; word-break: break-word;">${escapeHtml(error?.message || String(error))}\n${escapeHtml(error?.stack || '')}</pre>
+      </details>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+        <button onclick="location.reload()" style="
+          padding: 0.75rem 1.5rem;
+          background: ${accent};
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 1rem;
+          cursor: pointer;
+        ">Réessayer</button>
+        <button onclick="clearStorageAndReload()" style="
+          padding: 0.75rem 1.5rem;
+          background: transparent;
+          color: ${text};
+          border: 1px solid ${border};
+          border-radius: 6px;
+          font-size: 1rem;
+          cursor: pointer;
+        ">Réinitialiser le stockage</button>
+      </div>
+      <p style="margin-top: 2rem; font-size: 0.8rem; color: ${muted}; max-width: 500px;">
+        Si le problème persiste, ouvrez la console (F12) pour plus de détails.
+        IndexedDB peut être indisponible en navigation privée ou si le stockage est plein.
+      </p>
+    </div>
+  `;
+  
+  // Fonction globale pour le bouton
+  window.clearStorageAndReload = () => {
+    try { localStorage.clear(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    if ('indexedDB' in window) {
+      indexedDB.databases?.().then(dbs => dbs.forEach(db => indexedDB.deleteDatabase(db.name)));
+    }
+    location.reload();
+  };
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"')
+    .replace(/'/g, '&#039;');
+}
+
+/* ==========================================================================
    Initialisation
    ========================================================================== */
 
@@ -39,43 +130,49 @@ async function init() {
     // 1. Thème (avant paint pour éviter flash)
     initTheme();
     
-    // 2. i18n
+    // 2. Vérifie IndexedDB dispo
+    const idbOk = await checkIDBAvailable();
+    if (!idbOk) {
+      throw new Error('IndexedDB indisponible (navigation privée, stockage plein, ou navigateur non supporté)');
+    }
+    
+    // 3. i18n
     const settings = await getAllSettings();
     initI18n(settings.language);
     applyTranslations();
     
-    // 3. Charge l'état depuis DB
+    // 4. Charge l'état depuis DB
     await loadInitialState();
     
-    // 4. Rend l'UI
+    // 5. Rend l'UI
     renderApp();
     
-    // 5. Setup event listeners
+    // 6. Setup event listeners
     setupEventListeners();
     
-    // 6. Raccourcis clavier
+    // 7. Raccourcis clavier
     initShortcuts();
     
-    // 7. Service Worker
-    registerSW();
+    // 8. Service Worker (avec gestion d'erreur)
+    try { registerSW(); } catch (swErr) { console.warn('[SW] Erreur:', swErr); }
     
-    // 8. Persistance
+    // 9. Persistance
     requestPersistence();
     
-    // 9. Auto-save interval
+    // 10. Auto-save interval
     startAutoSave();
     
-    // 10. Online/offline
+    // 11. Online/offline
     window.addEventListener('online', () => setOnline(true));
     window.addEventListener('offline', () => setOnline(false));
     
-    // 11. Beforeunload / visibilitychange
+    // 12. Beforeunload / visibilitychange
     setupUnloadHandlers();
     
-    // 12. Share target (Android)
+    // 13. Share target (Android)
     handleShareTarget();
     
-    // 13. URL ?new=1
+    // 14. URL ?new=1
     handleNewNoteParam();
     
     appInitialized = true;
@@ -83,10 +180,10 @@ async function init() {
     
   } catch (e) {
     console.error('[My Note] Erreur initialisation:', e);
-    showToast(t('errorLoadDB'), 'error');
-    // Affiche quand même l'UI de base
-    renderApp();
-    setupEventListeners();
+    showCriticalError(
+      'Impossible d\'initialiser l\'application. Voir les détails ci-dessous.',
+      e
+    );
   }
 }
 

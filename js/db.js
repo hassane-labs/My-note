@@ -25,11 +25,26 @@ export async function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    request.onerror = () => reject(new Error('Impossible d\'ouvrir IndexedDB'));
+    // Timeout de sécurité (5s) au cas où indexedDB bloquerait
+    const timeout = setTimeout(() => {
+      reject(new Error('IndexedDB timeout: ouverture trop lente ou bloquée'));
+    }, 5000);
+
+    request.onerror = () => {
+      clearTimeout(timeout);
+      const err = request.error;
+      reject(new Error(`Impossible d'ouvrir IndexedDB: ${err?.name || 'UnknownError'} - ${err?.message || 'Pas de détails'}`));
+    };
     request.onsuccess = () => {
+      clearTimeout(timeout);
       dbInstance = request.result;
       dbInstance.onerror = (e) => console.error('[DB] Erreur:', e.target.error);
       resolve(dbInstance);
+    };
+
+    request.onblocked = () => {
+      clearTimeout(timeout);
+      reject(new Error('IndexedDB bloqué: une autre onglet/fenêtre a la base ouverte'));
     };
 
     request.onupgradeneeded = (event) => {
