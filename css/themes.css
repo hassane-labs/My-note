@@ -1,0 +1,290 @@
+/* ==========================================================================
+   My Note - Themes CSS (Thèmes sombre/clair/auto, transitions)
+   ========================================================================== */
+
+/* ---- Script anti-flash (inline dans <head> au chargement) ---- */
+/*
+<script>
+  (function() {
+    var theme = localStorage.getItem('theme') || 'auto';
+    var root = document.documentElement;
+    if (theme === 'auto') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    root.setAttribute('data-theme', theme);
+  })();
+</script>
+*/
+
+/* ---- Variables de thème déjà définies dans tokens.css ---- */
+/* Ce fichier gère les transitions et ajustements spécifiques au thème */
+
+/* Transition douce pour le changement de thème */
+html {
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* Désactiver transitions pendant le chargement initial pour éviter le flash */
+html.theme-loading * {
+  transition: none !important;
+}
+
+/* ---- Thème Sombre (défaut) ---- */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* ---- Thème Clair ---- */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* ---- Ajustements spécifiques composants par thème ---- */
+
+/* Scrollbar */
+[data-theme="dark"] * {
+  scrollbar-color: var(--border) transparent;
+}
+[data-theme="light"] * {
+  scrollbar-color: var(--border) transparent;
+}
+
+/* Sélection */
+[data-theme="dark"] ::selection {
+  background: var(--accent-soft);
+}
+[data-theme="light"] ::selection {
+  background: var(--accent-soft);
+}
+
+/* Inputs */
+[data-theme="light"] .input-wrapper input,
+[data-theme="light"] .input-wrapper textarea,
+[data-theme="light"] .input-wrapper select {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="light"] .input-wrapper input:focus,
+[data-theme="light"] .input-wrapper textarea:focus,
+[data-theme="light"] .input-wrapper select:focus {
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+/* Checkbox/Radio */
+[data-theme="light"] .checkbox-box,
+[data-theme="light"] .radio-box {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Switch */
+[data-theme="light"] .switch-track {
+  background: var(--border-strong);
+}
+[data-theme="light"] .switch input:checked + .switch-track {
+  background: var(--accent);
+}
+
+/* Modal overlay */
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Toast */
+[data-theme="dark"] .toast {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="light"] .toast {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Command palette */
+[data-theme="dark"] .command-palette {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="light"] .command-palette {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Dropdown */
+[data-theme="dark"] .dropdown-menu {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="light"] .dropdown-menu {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Tooltip */
+[data-theme="dark"] .tooltip {
+  background: var(--surface-3);
+  border-color: var(--border);
+}
+[data-theme="dark"] .tooltip::after {
+  border-bottom-color: var(--surface-3);
+}
+[data-theme="light"] .tooltip {
+  background: var(--surface-3);
+  border-color: var(--border);
+}
+[data-theme="light"] .tooltip::after {
+  border-bottom-color: var(--surface-3);
+}
+
+/* Editor textarea - ajustement curseur */
+[data-theme="dark"] .editor-textarea {
+  caret-color: var(--accent);
+}
+[data-theme="light"] .editor-textarea {
+  caret-color: var(--accent);
+}
+
+/* Markdown preview - ajustements thème clair */
+[data-theme="light"] .markdown-preview {
+  background: var(--bg);
+}
+[data-theme="light"] .markdown-preview code:not(pre > code) {
+  background: var(--surface-2);
+}
+[data-theme="light"] .markdown-preview pre {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+[data-theme="light"] .markdown-preview blockquote {
+  background: var(--accent-soft);
+}
+[data-theme="light"] .markdown-preview table {
+  border-color: var(--border);
+}
+[data-theme="light"] .markdown-preview th {
+  background: var(--surface-2);
+}
+[data-theme="light"] .markdown-preview tr:nth-child(even) {
+  background: var(--surface-2);
+}
+[data-theme="light"] .markdown-preview hr {
+  border-color: var(--border);
+}
+
+/* Task list */
+[data-theme="light"] .markdown-preview .task-list-item input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+/* Line numbers */
+[data-theme="dark"] .line-numbers {
+  color: var(--muted-strong);
+}
+[data-theme="light"] .line-numbers {
+  color: var(--muted-strong);
+}
+
+/* Search highlight */
+[data-theme="dark"] .search-highlight {
+  background: var(--warning-soft);
+}
+[data-theme="dark"] .search-highlight.current {
+  background: var(--accent-soft);
+}
+[data-theme="light"] .search-highlight {
+  background: var(--warning-soft);
+}
+[data-theme="light"] .search-highlight.current {
+  background: var(--accent-soft);
+}
+
+/* Note item active */
+[data-theme="dark"] .note-item.active {
+  background: var(--accent-soft);
+  outline-color: var(--accent);
+}
+[data-theme="light"] .note-item.active {
+  background: var(--accent-soft);
+  outline-color: var(--accent);
+}
+
+/* Tab active */
+[data-theme="dark"] .tab.active::before {
+  background: var(--accent);
+}
+[data-theme="light"] .tab.active::before {
+  background: var(--accent);
+}
+
+/* Focus ring visible sur les deux thèmes */
+:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* Print adjustments - voir print.css */
+
+/* ---- Animations d'entrée/sortie ---- */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in { animation: fade-in var(--transition-base) ease-out; }
+.animate-fade-out { animation: fade-out var(--transition-base) ease-in; }
+.animate-slide-up { animation: slide-up var(--transition-base) ease-out; }
+.animate-scale-in { animation: scale-in var(--transition-base) ease-out; }
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- High contrast adjustments ---- */
+@media (prefers-contrast: more) {
+  :root {
+    --border: #555;
+    --border-strong: #777;
+  }
+  [data-theme="light"] {
+    --border: #aaa;
+    --border-strong: #888;
+  }
+  .btn-primary {
+    border-width: 2px;
+  }
+  .tab.active::before {
+    height: 3px;
+  }
+}
+
+/* ---- Thème auto (suivi système) ---- */
+/* Géré par JS au chargement et sur changement media query */

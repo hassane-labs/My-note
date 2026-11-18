@@ -1,0 +1,378 @@
+/* ==========================================================================
+   My Note - Print CSS (Export PDF propre via window.print())
+   ========================================================================== */
+
+@media print {
+  /* ---- Masquer l'interface ---- */
+  .header,
+  .sidebar,
+  .tab-bar,
+  .editor-toolbar,
+  .statusbar,
+  .sidebar-overlay,
+  .modal-overlay,
+  .toast-container,
+  .command-palette,
+  .dropdown-menu,
+  .tooltip,
+  .mobile-menu-btn,
+  .new-tab-btn,
+  .note-menu-btn,
+  .tab-close,
+  .toolbar-group:last-child {
+    display: none !important;
+  }
+
+  /* ---- Layout pour impression ---- */
+  .app {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .editor-pane {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .editor-content {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .editor-modes {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* N'imprimer que le mode actif */
+  .editor-mode:not(.active) {
+    display: none !important;
+  }
+
+  .editor-mode.active {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+  }
+
+  /* ---- Éditeur (textarea) ---- */
+  .editor-wrapper {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .editor-textarea {
+    display: none !important;
+  }
+
+  /* Afficher le contenu rendu pour l'impression */
+  .editor-print-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: var(--font-serif) !important;
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    color: #000 !important;
+    background: white !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
+
+  /* ---- Aperçu Markdown ---- */
+  .markdown-preview {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    font-family: var(--font-serif) !important;
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    color: #000 !important;
+    background: white !important;
+  }
+
+  .markdown-preview h1,
+  .markdown-preview h2,
+  .markdown-preview h3,
+  .markdown-preview h4,
+  .markdown-preview h5,
+  .markdown-preview h6 {
+    font-family: var(--font-serif) !important;
+    color: #000 !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .markdown-preview h1 { font-size: 22pt !important; margin: 24pt 0 12pt !important; }
+  .markdown-preview h2 { font-size: 18pt !important; margin: 20pt 0 10pt !important; border-bottom: 1px solid #ccc !important; padding-bottom: 4pt !important; }
+  .markdown-preview h3 { font-size: 14pt !important; margin: 16pt 0 8pt !important; }
+  .markdown-preview h4 { font-size: 12pt !important; margin: 12pt 0 6pt !important; }
+
+  .markdown-preview p {
+    margin: 0 0 10pt !important;
+    orphans: 3;
+    widows: 3;
+  }
+
+  .markdown-preview code:not(pre > code) {
+    background: #f5f5f5 !important;
+    padding: 1pt 4pt !important;
+    border-radius: 3px !important;
+    font-size: 10pt !important;
+    font-family: var(--font-mono) !important;
+    color: #333 !important;
+    border: 1px solid #ddd !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .markdown-preview pre {
+    background: #f5f5f5 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    padding: 8pt !important;
+    margin: 10pt 0 !important;
+    overflow: visible !important;
+    page-break-inside: auto !important;
+    font-size: 9.5pt !important;
+    line-height: 1.5 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .markdown-preview pre code {
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: inherit !important;
+    color: inherit !important;
+  }
+
+  .markdown-preview blockquote {
+    border-left: 3px solid #999 !important;
+    background: #f9f9f9 !important;
+    padding: 6pt 12pt !important;
+    margin: 10pt 0 !important;
+    font-style: italic !important;
+    color: #333 !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .markdown-preview ul,
+  .markdown-preview ol {
+    margin: 8pt 0 8pt 24pt !important;
+    padding: 0 !important;
+  }
+
+  .markdown-preview li {
+    margin: 4pt 0 !important;
+  }
+
+  .markdown-preview a {
+    color: #000 !important;
+    text-decoration: underline !important;
+  }
+
+  .markdown-preview a::after {
+    content: " (" attr(href) ")" !important;
+    font-size: 8pt !important;
+    color: #666 !important;
+    font-weight: normal !important;
+  }
+
+  .markdown-preview a[href^="#"]::after,
+  .markdown-preview a[href^="mailto:"]::after,
+  .markdown-preview a[href^="tel:"]::after {
+    content: "" !important;
+  }
+
+  .markdown-preview img {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .markdown-preview table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 12pt 0 !important;
+    page-break-inside: auto !important;
+    font-size: 10pt !important;
+  }
+
+  .markdown-preview th,
+  .markdown-preview td {
+    border: 1px solid #ccc !important;
+    padding: 4pt 8pt !important;
+    text-align: left !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .markdown-preview th {
+    background: #f0f0f0 !important;
+    font-weight: 600 !important;
+  }
+
+  .markdown-preview tr:nth-child(even) {
+    background: #fafafa !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .markdown-preview hr {
+    border: none !important;
+    border-top: 1px solid #ccc !important;
+    margin: 16pt 0 !important;
+  }
+
+  /* Task lists */
+  .markdown-preview .task-list-item {
+    list-style: none !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 8pt !important;
+    margin: 6pt 0 !important;
+  }
+
+  .markdown-preview .task-list-item input[type="checkbox"] {
+    width: 14pt !important;
+    height: 14pt !important;
+    margin-top: 2pt !important;
+    flex-shrink: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .markdown-preview .task-list-item input[type="checkbox"]:checked + label {
+    text-decoration: line-through !important;
+    color: #666 !important;
+  }
+
+  /* Code blocks with syntax highlighting - keep minimal colors */
+  .markdown-preview .hljs {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+  }
+
+  .markdown-preview .hljs-keyword,
+  .markdown-preview .hljs-selector-tag,
+  .markdown-preview .hljs-subst {
+    color: #880000 !important;
+  }
+  .markdown-preview .hljs-string,
+  .markdown-preview .hljs-title,
+  .markdown-preview .hljs-name,
+  .markdown-preview .hljs-attribute {
+    color: #008800 !important;
+  }
+  .markdown-preview .hljs-comment,
+  .markdown-preview .hljs-quote {
+    color: #888888 !important;
+    font-style: italic !important;
+  }
+  .markdown-preview .hljs-number,
+  .markdown-preview .hljs-literal {
+    color: #0000aa !important;
+  }
+  .markdown-preview .hljs-built_in,
+  .markdown-preview .hljs-type {
+    color: #880088 !important;
+  }
+
+  /* ---- Marges de page ---- */
+  @page {
+    margin: 2cm 1.5cm;
+    size: A4;
+  }
+
+  @page :first {
+    margin-top: 2.5cm;
+  }
+
+  @page :left {
+    margin-right: 2cm;
+    margin-left: 1.5cm;
+  }
+
+  @page :right {
+    margin-left: 2cm;
+    margin-right: 1.5cm;
+  }
+
+  /* ---- Éviter les coupures ---- */
+  h1, h2, h3, h4, h5, h6,
+  pre, blockquote, table,
+  .task-list-item {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* ---- Numéros de page ---- */
+  @page {
+    @bottom-center {
+      content: counter(page);
+      font-family: var(--font-sans);
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+
+  /* ---- Forcer impression couleurs/fond ---- */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ---- Mode split : imprimer les deux côtés ---- */
+  .editor-mode.split .editor-mode.write,
+  .editor-mode.split .editor-mode.preview {
+    display: block !important;
+    width: 100% !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .editor-mode.split .editor-mode.write:last-child,
+  .editor-mode.split .editor-mode.preview:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+}
+
+/* ---- Classes utilitaires pour l'impression ---- */
+.editor-print-content {
+  display: none;
+}
+
+@media print {
+  .editor-print-content {
+    display: block !important;
+  }
+}

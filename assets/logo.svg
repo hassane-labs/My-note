@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0A0A0B"/>
+      <stop offset="100%" stop-color="#131316"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#bgGrad)"/>
+  <path
+    d="M46.5 17.5
+       Q42 15 38 17
+       Q34 19 31 22
+       Q27 26 25 31
+       Q23 36 22.5 41
+       Q22 46 23 51
+       Q24 56 26.5 59.5"
+    stroke="#E11D2E"
+    stroke-width="2.5"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+  <path
+    d="M38 17
+       Q36 20 34.5 23
+       Q33 26 32 29
+       Q31 32 30.5 35"
+    stroke="#E11D2E"
+    stroke-width="1.5"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.7"/>
+  <path
+    d="M31 22
+       Q29 25 28 28
+       Q27 31 27 34"
+    stroke="#E11D2E"
+    stroke-width="1.2"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.5"/>
+  <path
+    d="M25 31
+       Q24 33 23.5 35.5
+       Q23 38 23 41"
+    stroke="#E11D2E"
+    stroke-width="1"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.4"/>
+  <ellipse cx="46.5" cy="17.5" rx="3" ry="2" fill="#E11D2E" opacity="0.9"/>
+</svg>
