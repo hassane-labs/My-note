@@ -1,0 +1,26 @@
+# Secrets et configuration locale
+.env
+.env.*
+*.pem
+*.key
+*.p12
+id_rsa*
+*.secret
+secrets.*
+credentials*.json
+config.local.*
+
+# Dépendances et builds
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+dist/
+build/
+
+# Fichiers système / éditeur
+.DS_Store
+.vscode/
+.idea/
+*.log
